@@ -57,7 +57,6 @@ async function getOrderDetail(id) {
         
         const orderItem = await orderItemModel.find({order_id: id})
         const order = await orderModel.findById(id)
-        
         if(!order && !orderItem) {
             return 
         }

@@ -54,16 +54,16 @@ router.post('/create', async (req, res) => {
       res.status(409).json({ message: 'Email đã tồn tại' })
     }
   } catch (error) {
-
+   console.log(error);
   }
 })
 
 router.post('/', async (req, res, next) => {
   try {
     const body = req.body
-    const result = await userController.signIn(body)
+    const result = await userController.signUP(body)
     if (result) {
-      res.status(200).json({ newUser: result, message: "Đã tạo tài khoản thành công",status: "OK" })
+      res.status(200).json({ message: "Đã tạo tài khoản thành công",status: "OK" })
     }
     else {
       res.json({ message: "Email đã tồn tại" })
@@ -101,7 +101,7 @@ router.post('/login', async (req, res) => {
     if (result) {
       return res.status(200).json({result, message: "Đăng nhập thành công", status: "OK"})
     } else {
-      res.json({ message: "Email hoặc khẩu không đúng" })
+      res.status(200).json({ message: "Email hoặc khẩu không đúng" })
     }
   } catch (error) {
     console.log(error);

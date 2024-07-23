@@ -4,16 +4,19 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const cors = require('cors');
+require('dotenv').config();
 const mongoose = require('mongoose');
-require('./mongo/user.model')
-require('./mongo/product.model')
-require('./mongo/category.model')
+// require('./mongo/user.model')
+// require('./mongo/product.model')
+// require('./mongo/category.model')
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var categoriesRouter = require('./routes/categories');
 var productsRouter = require('./routes/products');
 var ordersRouter = require('./routes/orders');
 var orderItemRouter = require('./routes/orderItem');
+var photoRouter = require('./routes/photos');
+const { required } = require('nodemon/lib/config');
 // var apiRouter = require('./routes/api');
 
 var app = express();
@@ -32,8 +35,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ket noi mongodb
-mongoose.connect('mongodb://localhost:27017/hello')
-  .then(() => console.log("ket noi thanh cong"))
+// process.env.MONGODB_URI+process.env.DATABASE_NAME
+mongoose.connect(process.env.MONGODB_URI+process.env.DATABASE_NAME)
+  .then(() => console.log("ket noi thanh cong" ))
   .catch((error) => console.log(error))
 
 //  dinh nghia routing
@@ -43,6 +47,7 @@ app.use('/categories', categoriesRouter);
 app.use('/products', productsRouter);
 app.use('/orders', ordersRouter);
 app.use('/orderItem', orderItemRouter);
+app.use('/photos',photoRouter)
 // app.use('/api', apiRouter);
 
 // catch 404 and forward to error handler

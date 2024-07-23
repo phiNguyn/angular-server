@@ -18,8 +18,12 @@ const productSchema = new Schema({
         type: {
             categoryId:{type: ObjectId, required:true},
             categoryName: {type: String,required:true},
+            categorySlug: {type: String, required: true}
         } ,
         required: true
     }
 })
 module.exports = mongoose.models.product || mongoose.model('product',productSchema)
+
+
+

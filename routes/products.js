@@ -3,8 +3,6 @@ var router = express.Router();
 const productController = require('../mongo/product.contronler')
 var Product = require('../mongo/product.model')
 var multer = require('multer');
-
-var token = require('../helper/token');
 const checkToken = require('../helper/token');
 
 
@@ -30,9 +28,8 @@ let upload = multer({ storage: storage, fileFilter: checkFileUpload })
 
 router.get('/' , async (req, res, next) => {
   try {
-    const { page, limit } = req.query
-    const allPro = await productController.getAll(page, limit)
-   
+    const { page, limit,sortOrder } = req.query
+    const allPro = await productController.getAll(page, limit,sortOrder)
 
     if (allPro) {
       res.status(200).json(allPro);
@@ -61,7 +58,7 @@ router.get('/hot', async (req,res) => {
 } )
 
 
-router.post('/addProduct', checkToken,  upload.single('img'), async (req, res, next) => {
+router.post('/addProduct', upload.single('img'), async (req, res, next) => {
   try {
     const body = req.body;
     body.img = req.file.originalname;
@@ -90,8 +87,8 @@ router.get('/price/:sortOption', async (req, res, next) => {
 
 
 
-router.get('/search/:name', async (req, res) => {
-  let name = req.params.name;
+router.get('/search/', async (req, res) => {
+  let name = req.query.name;
   // const pro = await Product.find({ name: { $regex: name, $options: 'i'} })
   const pro = await productController.search(name)
   
@@ -152,24 +149,37 @@ router.get('/edit/:_id', async (req, res, next) => {
 
 router.get('/detail/:id', async (req, res) => {
   try {
-    let id = req.params.id;
-    const detail = await Product.findById(id)
-    
-    
- 
+      let { id } = req.params;
+      const detail = await productController.getProductById(id);
+      if (!detail) {
+          return res.status(404).json({ message: 'Product not found' });
+      }
+
+      return res.status(200).json(detail);
+  } catch (error) {
+      return res.status(500).json({ message: error.message });
+  }
+});
+
+
+router.get('/:slug', async (req, res) => {
+  try {
+    let slug = req.params.slug;
+    const detail = await productController.getProductSlug(slug)
     res.status(200).json(detail);
   } catch (error) {
-
   }
 })
 
-router.get('/:categoryId', async (req, res) => {
+router.get('/cate/:categoryId', async (req, res) => {
+  let {categoryId} = req.params
+  const { page, limit,sortOrder } = req.query
   try {
-    let categoryId = req.params.categoryId
-    const allPro = await productController.productByCategoryId(categoryId);
+    const allPro = await productController.productByCategoryId(categoryId,page, limit,sortOrder);
     if (allPro) {
-      res.status(200).json({ allPro });
-
+      res.status(200).json( allPro );
+    }else{
+      res.status(404).json({message:"Rong"})
     }
   } catch (error) {
     console.error(error);

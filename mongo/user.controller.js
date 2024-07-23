@@ -1,10 +1,10 @@
 const userModel = require('./user.model')
 var bcryptjs = require('bcryptjs')
 var jwt = require('jsonwebtoken');
-   module.exports ={ signIn, getUser, getUserById, addUser, updateUserById, remove, login, forgot }
+   module.exports ={ signUP, getUser, getUserById, addUser, updateUserById, remove, login, forgot }
    
 
-  async function signIn (body)  {
+  async function signUP (body)  {
     try {
         let { name, email, pass, role } = body
         let user = await userModel.findOne({ email: email })
