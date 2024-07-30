@@ -7,7 +7,7 @@ module.exports = {newOrder ,getOrderAll ,getOrderByUserId, getOrderDetail}
 
 async function newOrder (body) {
     try {
-            const {user_id, total_amount, address, type_payment, order_status , order_date} = body
+            const {name, email, phone, user_id, total_amount, address, type_payment, order_status , order_date} = body
                 const userFind = await userModel.findById(user_id)
                 if(!userFind) {
                     throw new Error("Không tìm thấy Mã User")
@@ -18,7 +18,8 @@ async function newOrder (body) {
                     address, 
                     type_payment, 
                     order_status, 
-                    order_date 
+                    order_date ,
+                    name, email, phone,
                 })
 
                 const result = await newOrder.save()

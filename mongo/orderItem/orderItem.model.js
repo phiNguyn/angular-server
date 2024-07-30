@@ -2,6 +2,9 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const orderID = Schema.ObjectId
 const productID = Schema.ObjectId
+
+
+
 const orderItemSchema = new Schema({
     order_id: {type: orderID, required: true},
     product_id: {type: productID, required: true},

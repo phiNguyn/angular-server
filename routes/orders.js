@@ -10,7 +10,7 @@ router.post('/', async (req, res) => {
 
       res.status(200).json({newOrder, message: "Đã đặt hàng thành công", status: "OK" });
     }else {
-      res.status(404).json({ message: "Lỗi "})
+      res.status(400).json({ message: "Lỗi "})
     }
 
   } catch (error) {

@@ -6,7 +6,7 @@ var jwt = require('jsonwebtoken');
 
   async function signUP (body)  {
     try {
-        let { name, email, pass, role } = body
+        let { name, email, pass, role, address, phone } = body
         let user = await userModel.findOne({ email: email })
         if (user) {
             throw new Error(`User ${email} already exists`)
@@ -14,7 +14,7 @@ var jwt = require('jsonwebtoken');
         }
         const salt = bcryptjs.genSaltSync(10)
         const hash = bcryptjs.hashSync(pass,salt)
-        user = new userModel({name,email,pass:hash,role : role ||1})
+        user = new userModel({name,email,pass:hash,role : role ||1, address : address | "", phone : phone || ""})
         const result = await user.save()
      return result
     } catch (error) {

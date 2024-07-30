@@ -16,7 +16,6 @@ var productsRouter = require('./routes/products');
 var ordersRouter = require('./routes/orders');
 var orderItemRouter = require('./routes/orderItem');
 var photoRouter = require('./routes/photos');
-const { required } = require('nodemon/lib/config');
 // var apiRouter = require('./routes/api');
 
 var app = express();
@@ -36,6 +35,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // ket noi mongodb
 // process.env.MONGODB_URI+process.env.DATABASE_NAME
+
 mongoose.connect(process.env.MONGODB_URI+process.env.DATABASE_NAME)
   .then(() => console.log("ket noi thanh cong" ))
   .catch((error) => console.log(error))
