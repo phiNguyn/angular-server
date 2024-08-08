@@ -7,7 +7,7 @@ const Schema = mongoose.Schema;
 const categorySchema = new Schema({
     img :{type: String, required: false},
     name: {type: String, required: true},
-    home : {type: Number, required: false},
+    home : {type: Boolean, required: false},
     stt : {type: Number, required: false},
     mota: {type: String, required: false},
     content : {type: String, required: false},

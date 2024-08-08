@@ -12,13 +12,12 @@ const productSchema = new Schema({
     view : {type: Number, required: false},
     bestseller: {type: Boolean, required: false},
     quantity: {type: Number, required: true},
-    slug : {type: String, slug: "name" },
-
+    slug : {type: String, slug: "name"},
+ 
     category: {
         type: {
             categoryId:{type: ObjectId, required:true},
-            categoryName: {type: String,required:true},
-            categorySlug: {type: String, required: true}
+            categoryName: {type: String,required:true}
         } ,
         required: true
     }

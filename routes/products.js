@@ -12,7 +12,7 @@ let storage = multer.diskStorage({
       cb(null, 'public/images')
   },
   filename: function (req, file, cb) {
-      cb(null, file.originalname)
+      cb(null, `${Date.now()}_${file.originalname}`)
   }
 });
 
@@ -61,19 +61,18 @@ router.get('/hot', async (req,res) => {
 router.post('/addProduct', upload.single('img'), async (req, res, next) => {
   try {
     const body = req.body;
-    body.img = req.file.originalname;
-
+    body.img = req.file.filename;
+    
     const result = await productController.insert(body)
     if(!result){
-  return res.status(200).json({message: "Lỗi "})
-      
+    res.status(400).json({message: "Lỗi"})
     }
-  return res.status(200).json({status: "OK" , message: "Thêm Sản Phẩm Thành Công"})
+   res.status(200).json({result,status: "OK" , message: "Thêm Sản Phẩm Thành Công"})
 
   } catch (error) {
-    console.log("Loi" + error.message);
+    res.status(500).json({message : error.message})
   }
-});
+});  
 
 router.get('/price/:sortOption', async (req, res, next) => {
   try {
@@ -100,10 +99,11 @@ router.delete('/delete/:id', checkToken,  async (req, res) => {
     const { id } = req.params;
     const product = await productController.remove(id)
     if(!product){
-    return res.status(200).json({ message: "Sản Phẩm đang tồn tại trong đơn hàng " })
+    return res.status(200).json({ message: "Sản Phẩm đang tồn tại trong đơn hàng, chỉ có thể ẩn " })
 
     }
-    return res.status(200).json({ message: "Đã Xoá Sản Phẩm", status:"OK" })
+
+   return res.status(200).json({ message: "Đã Xoá Sản Phẩm", status:"OK" })
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: error })
@@ -115,10 +115,10 @@ router.put('/update/:id',upload.single('img') , async (req, res) => {
   try {
     const { id } = req.params;
     let body = req.body;
-    body.img = req.file ? req.file.originalname : req.body.imgOld
+    body.img = req.file ? req.file.filename : req.body.imgOld
     const productUpdate = await productController.updateById(id, body)
     if(productUpdate) {
-      res.status(200).json(productUpdate)
+      res.status(200).json({message: "Cập nhật sản phẩm thành công"})
 
     }else {
           res.status(403).json({ message: "Lỗi"})

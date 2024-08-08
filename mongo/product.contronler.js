@@ -1,7 +1,7 @@
 const productModel = require("./product.model");
 const categoryModel = require("./category.model");
 const photoModel = require("./photo/photo.model");
-orderItemModel = require("../mongo/orderItem/orderItem.model");
+ const orderItemModel = require("../mongo/orderItem/orderItem.model");
 module.exports = {
   insert,
   getAll,
@@ -45,8 +45,7 @@ async function insert(body) {
       slug,
       category: {
         categoryId: categoryFind._id,
-        categoryName: categoryFind.name,
-        categorySlug:categoryFind.slug
+        categoryName: categoryFind.name
       },
     });
 
@@ -110,10 +109,20 @@ async function getProductSlug(slug) {
   try {
     const result = await productModel.findOne({ slug: slug });
     const photos = await photoModel.find({ productId: result._id });
+    const relatedProducts = await productModel.find({'category.categoryId':  result.category.categoryId,
+       $and : [
+        {
+          _id: {$ne: result._id}
+        } 
+       ]
+      
+      }
+      );
+    // const productsNotEqualId = await productModel.find({_id: {$ne: relatedProducts._id}})
     if (!result) {
       throw new Error("Product not found");
     } else {
-      return { result, photos };
+      return { result, photos,relatedProducts};
     }
   } catch (error) {
     throw error;
@@ -238,14 +247,19 @@ async function productByCategoryId(categoryId, page, limit, sortOrder) {
 
 async function remove(id) {
   try {
-    const product_id = await orderItemModel.findById(id);
-    if (product_id.length > 0) {
+    const product = await orderItemModel.find({product_id: id});
+    if (product.length > 0) {
       return;
-    } else {
-      const result = await productModel.findByIdAndDelete(id);
-      return result;
     }
-  } catch (error) {}
+   else{
+     const result = await productModel.findByIdAndDelete(id);
+     return result;
+
+   }
+    
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 async function search(name) {

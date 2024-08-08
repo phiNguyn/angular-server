@@ -20,7 +20,7 @@ async function insert(body) {
 
 async function getCate() {
     try {
-        const result = await categoryModel.find({home:1}).sort({stt:1}).limit(3)
+        const result = await categoryModel.find({home:true}).sort({stt:1}).limit(3)
         return result;
     } catch (error) {
         console.log('Error get all', error);
