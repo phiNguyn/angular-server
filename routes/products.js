@@ -94,7 +94,9 @@ router.get('/search/', async (req, res) => {
   res.status(200).json({allPro: pro})
 })
 
-router.delete('/delete/:id', checkToken,  async (req, res) => {
+router.delete('/delete/:id', 
+  // checkToken,
+    async (req, res) => {
   try {
     const { id } = req.params;
     const product = await productController.remove(id)

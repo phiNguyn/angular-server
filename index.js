@@ -16,6 +16,8 @@ var productsRouter = require('./routes/products');
 var ordersRouter = require('./routes/orders');
 var orderItemRouter = require('./routes/orderItem');
 var photoRouter = require('./routes/photos');
+var emailRouter = require('./routes/email');
+var momoRoutes = require('./routes/momo');
 // var apiRouter = require('./routes/api');
 
 var app = express();
@@ -48,6 +50,8 @@ app.use('/products', productsRouter);
 app.use('/orders', ordersRouter);
 app.use('/orderItem', orderItemRouter);
 app.use('/photos',photoRouter)
+app.use('/email',emailRouter)
+app.use('/momo',momoRoutes)
 // app.use('/api', apiRouter);
  
 // catch 404 and forward to error handler

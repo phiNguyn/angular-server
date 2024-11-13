@@ -3,7 +3,7 @@ var router = express.Router();
 const userController = require('../mongo/user.controller')
 var checkToken = require('../helper/token')
 /* GET users listing. */
-router.get('/', checkToken, async (req, res, next) => {
+router.get('/', async (req, res, next) => {
   try {
     const user = await userController.getUser()
     if (user) {
@@ -16,7 +16,7 @@ router.get('/', checkToken, async (req, res, next) => {
   // res.send('respond with a resource');
 });
 
-router.get('/:_id', checkToken, async (req, res, next) => {
+router.get('/:_id', async (req, res, next) => {
   try {
     let id = req.params
     const userId = await userController.getUserById(id)
