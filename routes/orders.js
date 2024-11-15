@@ -77,7 +77,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-router.post("transaction-status", async (req, res) => {
+router.post("/transaction-status", async (req, res) => {
   try {
     const { id } = req.body;
     const rawSignature = `accesskey=${process.env.MOMO_ACCESSKEY}&orderId=${process.env.MOMO_SECRETKEY}&partnerCode=MOMO&requestId=${id}`;
@@ -124,4 +124,5 @@ router.post("callback", async (req, res) => {
     console.log(error);
   }
 });
+https://cake.phinguyen.id.vn/checkout?partnerCode=MOMO&orderId=673777537f0e4b01332a62e0&requestId=673777537f0e4b01332a62e0&amount=330000&orderInfo=pay+with+MoMo&orderType=momo_wallet&transId=3280981801&resultCode=0&message=Th%C3%A0nh+c%C3%B4ng.&payType=qr&responseTime=1731688358772&extraData=&signature=6918c5bce0e7ac9c1cc461726c206bcedef95c70d57efc441a08e20531e79959
 module.exports = router;
