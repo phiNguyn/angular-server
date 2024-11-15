@@ -6,6 +6,7 @@ const dotenv = require("dotenv");
 var crypto = require("crypto");
 const { default: axios } = require("axios");
 const { error } = require("console");
+const orderModel = require("../mongo/order.model");
 dotenv.config();
 router.post("/", async (req, res) => {
   try {
@@ -56,6 +57,25 @@ router.get("/:id", checkToken, async (req, res) => {
     res.status(200).json({ status: "OK", orderDetail });
   } catch (error) {}
 });
+router.put("/:id", async (req, res) => {
+  try {
+    const { order_status } = req.body; // Extract order_status from body
+    const { id } = req.params; // Extract id from params
+    console.log(req.body);
+
+    // Update the document
+    const orders = await orderModel.findByIdAndUpdate(
+      id,
+      { order_status }, // Correctly structure the update object
+      { new: true } // Optionally return the updated document
+    );
+
+    return res.status(200).json({ status: "OK", orders });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ status: "ERROR", error: error.message });
+  }
+});
 
 router.post("transaction-status", async (req, res) => {
   try {
@@ -85,9 +105,7 @@ router.post("transaction-status", async (req, res) => {
       const orders = await axios.put(
         `https://cake-ipun.vercel.app/orders/${id}`,
         {
-          data: {
-            order_status: resp.data.resultCode,
-          },
+          order_status: resp.data.resultCode,
         }
       );
       console.log(orders);
