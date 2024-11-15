@@ -5,6 +5,7 @@ const checkToken = require("../helper/token");
 const dotenv = require("dotenv");
 var crypto = require("crypto");
 const { default: axios } = require("axios");
+const { error } = require("console");
 dotenv.config();
 router.post("/", async (req, res) => {
   try {
@@ -68,7 +69,7 @@ router.post("transaction-status", async (req, res) => {
       partner: "MOMO",
       requestId: id,
       signature: signature,
-      lang : 'vi'
+      lang: "vi",
     });
 
     const resp = await axios.post(
@@ -80,22 +81,29 @@ router.post("transaction-status", async (req, res) => {
         },
       }
     );
-
-    return res.status(200).json(resp.data)
+    if (resp.data) {
+      const orders = await axios.put(
+        `https://cake-ipun.vercel.app/orders/${id}`,
+        {
+          data: {
+            order_status: resp.data.resultCode,
+          },
+        }
+      );
+      console.log(orders);
+    }
+    return res.status(200).json(resp.data);
   } catch (error) {
     console.log(error);
   }
 });
 
-router.post('callback', async(req,res) => {
+router.post("callback", async (req, res) => {
   try {
-    console.log('callback::: ');
+    console.log("callback::: ");
     console.log(req.body);
-    
-    
   } catch (error) {
     console.log(error);
-    
   }
-})
+});
 module.exports = router;
