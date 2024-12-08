@@ -1,7 +1,7 @@
 const productModel = require("./product.model");
 const categoryModel = require("./category.model");
 const photoModel = require("./photo/photo.model");
- const orderItemModel = require("../mongo/orderItem/orderItem.model");
+const orderItemModel = require("../mongo/orderItem/orderItem.model");
 module.exports = {
   insert,
   getAll,
@@ -45,7 +45,7 @@ async function insert(body) {
       slug,
       category: {
         categoryId: categoryFind._id,
-        categoryName: categoryFind.name
+        categoryName: categoryFind.name,
       },
     });
 
@@ -57,28 +57,40 @@ async function insert(body) {
   }
 }
 
-async function getAll(page, limit, sortOrder) {
+async function getAll(page, limit, sortOrder, categoryId, q) {
   try {
     page = parseInt(page) ? parseInt(page) : 1;
     limit = parseInt(limit) ? parseInt(limit) : 10;
     const skip = (page - 1) * limit;
 
-    let sort = { _id: -1 }; // Default sort order
+    // Setup sort order
+    const sort =
+      sortOrder === "asc"
+        ? { price: 1 }
+        : sortOrder === "desc"
+        ? { price: -1 }
+        : { _id: -1 };
 
-    if (sortOrder === "asc") {
-      sort = { price: 1 }; // Sort by price ascending
-    } else if (sortOrder === "desc") {
-      sort = { price: -1 }; // Sort by price descending
+    // Setup filter query
+    const query = {};
+    if (categoryId) {
+      query["category.categoryId"] = categoryId;
+    }
+    if (q) {
+      query["name"] = { $regex: q, $options: "i" }; // Search by name (case-insensitive)
     }
 
-    const result = await productModel.find().sort(sort).skip(skip).limit(limit);
+    // Fetch products with pagination and filters
+    const [result, total] = await Promise.all([
+      productModel.find(query).sort(sort).skip(skip).limit(limit), // Select necessary fields
+      productModel.countDocuments(query),
+    ]);
 
-    const total = await productModel.countDocuments();
     const numberOfPages = Math.ceil(total / limit);
 
     return {
       result,
-      panigation: {
+      pagination: {
         countPro: total,
         countPage: numberOfPages,
         currentPage: page,
@@ -86,8 +98,7 @@ async function getAll(page, limit, sortOrder) {
       },
     };
   } catch (error) {
-    console.log("Error get all", error);
-    throw error;
+    return res.status(500).json(error);
   }
 }
 
@@ -109,20 +120,19 @@ async function getProductSlug(slug) {
   try {
     const result = await productModel.findOne({ slug: slug });
     const photos = await photoModel.find({ productId: result._id });
-    const relatedProducts = await productModel.find({'category.categoryId':  result.category.categoryId,
-       $and : [
+    const relatedProducts = await productModel.find({
+      "category.categoryId": result.category.categoryId,
+      $and: [
         {
-          _id: {$ne: result._id}
-        } 
-       ]
-      
-      }
-      );
+          _id: { $ne: result._id },
+        },
+      ],
+    });
     // const productsNotEqualId = await productModel.find({_id: {$ne: relatedProducts._id}})
     if (!result) {
       throw new Error("Product not found");
     } else {
-      return { result, photos,relatedProducts};
+      return { result, photos, relatedProducts };
     }
   } catch (error) {
     throw error;
@@ -223,7 +233,9 @@ async function productByCategoryId(categoryId, page, limit, sortOrder) {
       .skip(skip)
       .limit(limit);
     const category = await categoryModel.findById(categoryId);
-    const total = await productModel.find({ "category.categoryId": categoryId }).countDocuments();
+    const total = await productModel
+      .find({ "category.categoryId": categoryId })
+      .countDocuments();
     const numberOfPages = Math.ceil(total / limit);
     if (!pro || !category) {
       throw new Error();
@@ -247,18 +259,15 @@ async function productByCategoryId(categoryId, page, limit, sortOrder) {
 
 async function remove(id) {
   try {
-    const product = await orderItemModel.find({product_id: id});
+    const product = await orderItemModel.find({ product_id: id });
     if (product.length > 0) {
       return;
+    } else {
+      const result = await productModel.findByIdAndDelete(id);
+      return result;
     }
-   else{
-     const result = await productModel.findByIdAndDelete(id);
-     return result;
-
-   }
-    
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 }
 

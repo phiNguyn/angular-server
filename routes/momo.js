@@ -1,14 +1,15 @@
 var express = require("express");
 const axios = require("axios");
 var router = express.Router();
-
-var accessKey = "F8BBA842ECF85";
-var secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
+var dotenv = require("dotenv");
+dotenv.config();
+var accessKey = process.env.MOMO_ACCESSKEY;
+var secretKey = process.env.MOMO_SECRETKEY;
 router.post("/payment", async (req, res) => {
   var orderInfo = "pay with MoMo";
   var partnerCode = "MOMO";
   var redirectUrl = "https://cake.phinguyen.id.vn/checkout";
-  var ipnUrl = "https://cake-ipun.vercel.app/orders/transaction-status";
+  var ipnUrl = "https://cake-ipun.vercel.app/orders/tatus";
   var requestType = "payWithMethod";
   var amount = req.body.total_amount;
   var orderId = req.body._id;

@@ -2,12 +2,11 @@ var express = require("express");
 var router = express.Router();
 const order = require("../mongo/order.contronller");
 const checkToken = require("../helper/token");
-const dotenv = require("dotenv");
-var crypto = require("crypto");
-const { default: axios } = require("axios");
-const { error } = require("console");
-const orderModel = require("../mongo/order.model");
+var dotenv = require("dotenv");
 dotenv.config();
+var crypto = require("crypto");
+const axios = require("axios");
+const orderModel = require("../mongo/order.model");
 router.post("/", async (req, res) => {
   try {
     let body = req.body;
@@ -80,11 +79,18 @@ router.put("/:id", async (req, res) => {
 router.post("/transaction-status", async (req, res) => {
   try {
     const { id } = req.body;
+
+    if (!process.env.MOMO_ACCESSKEY || !process.env.MOMO_SECRETKEY) {
+      console.error("Missing MOMO keys in environment variables");
+      return res.status(500).json({ message: "Missing MOMO keys" });
+    }
+
     const rawSignature = `accesskey=${process.env.MOMO_ACCESSKEY}&orderId=${process.env.MOMO_SECRETKEY}&partnerCode=MOMO&requestId=${id}`;
     const signature = crypto
       .createHmac("sha256", process.env.MOMO_SECRETKEY)
       .update(rawSignature)
       .digest("hex");
+
     const requestBody = JSON.stringify({
       partner: "MOMO",
       requestId: id,
@@ -101,6 +107,7 @@ router.post("/transaction-status", async (req, res) => {
         },
       }
     );
+
     if (resp.data) {
       const orders = await axios.put(
         `https://cake-ipun.vercel.app/orders/${id}`,
@@ -110,9 +117,11 @@ router.post("/transaction-status", async (req, res) => {
       );
       console.log(orders);
     }
+
     return res.status(200).json(resp.data);
   } catch (error) {
-    console.log(error);
+    console.error("Error in /transaction-status:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
@@ -124,5 +133,4 @@ router.post("callback", async (req, res) => {
     console.log(error);
   }
 });
-https://cake.phinguyen.id.vn/checkout?partnerCode=MOMO&orderId=673777537f0e4b01332a62e0&requestId=673777537f0e4b01332a62e0&amount=330000&orderInfo=pay+with+MoMo&orderType=momo_wallet&transId=3280981801&resultCode=0&message=Th%C3%A0nh+c%C3%B4ng.&payType=qr&responseTime=1731688358772&extraData=&signature=6918c5bce0e7ac9c1cc461726c206bcedef95c70d57efc441a08e20531e79959
 module.exports = router;
