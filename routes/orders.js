@@ -78,22 +78,17 @@ router.put("/:id", async (req, res) => {
 
 router.post("/transaction-status", async (req, res) => {
   try {
-    const { id } = req.body;
+    const { orderId } = req.body;
 
-    if (!process.env.MOMO_ACCESSKEY || !process.env.MOMO_SECRETKEY) {
-      console.error("Missing MOMO keys in environment variables");
-      return res.status(500).json({ message: "Missing MOMO keys" });
-    }
-
-    const rawSignature = `accesskey=${process.env.MOMO_ACCESSKEY}&orderId=${process.env.MOMO_SECRETKEY}&partnerCode=MOMO&requestId=${id}`;
+    const rawSignature = `accessKey=${process.env.MOMO_ACCESSKEY}&orderId=${orderId}&partnerCode=MOMO&requestId=${orderId}`;
     const signature = crypto
       .createHmac("sha256", process.env.MOMO_SECRETKEY)
       .update(rawSignature)
       .digest("hex");
 
     const requestBody = JSON.stringify({
-      partner: "MOMO",
-      requestId: id,
+      partnerCode: "MOMO",
+      requestId: orderId,
       signature: signature,
       lang: "vi",
     });
@@ -110,7 +105,7 @@ router.post("/transaction-status", async (req, res) => {
 
     if (resp.data) {
       const orders = await axios.put(
-        `https://cake-ipun.vercel.app/orders/${id}`,
+        `https://cake-ipun.vercel.app/orders/${orderId}`,
         {
           order_status: resp.data.resultCode,
         }
@@ -124,11 +119,17 @@ router.post("/transaction-status", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
-
-router.post("callback", async (req, res) => {
+router.post("/callback", async (req, res) => {
   try {
     console.log("callback::: ");
     console.log(req.body);
+    const { orderId, resultCode } = req.body;
+    const orders = await orderModel.findByIdAndUpdate(
+      orderId,
+      { order_status: resultCode },
+      { new: true }
+    );
+    return res.status(200).json({ status: "OK", orders });
   } catch (error) {
     console.log(error);
   }

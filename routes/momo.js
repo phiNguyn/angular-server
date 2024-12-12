@@ -9,7 +9,7 @@ router.post("/payment", async (req, res) => {
   var orderInfo = "pay with MoMo";
   var partnerCode = "MOMO";
   var redirectUrl = "https://cake.phinguyen.id.vn/checkout";
-  var ipnUrl = "https://cake-ipun.vercel.app/orders/tatus";
+  var ipnUrl = "https://cake-ipun.vercel.app/orders/callback";
   var requestType = "payWithMethod";
   var amount = req.body.total_amount;
   var orderId = req.body._id;
@@ -61,7 +61,7 @@ router.post("/payment", async (req, res) => {
   //json object send to MoMo endpoint
   const requestBody = {
     partnerCode: partnerCode,
-    partnerName: "Test",
+    partnerName: "CAKE IPUN",
     storeId: "MomoTestStore",
     requestId: requestId,
     amount: amount,
@@ -85,6 +85,7 @@ router.post("/payment", async (req, res) => {
       {
         headers: {
           "Content-Type": "application/json",
+          "Content-Length": Buffer.byteLength(requestBody),
         },
       }
     );
