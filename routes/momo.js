@@ -85,7 +85,6 @@ router.post("/payment", async (req, res) => {
       {
         headers: {
           "Content-Type": "application/json",
-          "Content-Length": Buffer.byteLength(requestBody),
         },
       }
     );
