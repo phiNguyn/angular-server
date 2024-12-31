@@ -7,21 +7,7 @@ dotenv.config();
 var crypto = require("crypto");
 const axios = require("axios");
 const orderModel = require("../mongo/order.model");
-router.post("/", async (req, res) => {
-  try {
-    let body = req.body;
-    const newOrder = await order.newOrder(body);
-    if (newOrder) {
-      res
-        .status(200)
-        .json({ newOrder, message: "Đã đặt hàng thành công", status: "OK" });
-    } else {
-      res.status(400).json({ message: "Lỗi " });
-    }
-  } catch (error) {
-    console.log(error);
-  }
-});
+router.post("/", order.newOrder);
 
 router.get("/", checkToken, async (req, res) => {
   try {
